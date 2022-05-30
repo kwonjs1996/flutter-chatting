@@ -329,13 +329,17 @@ class _LoginSignupScreenState extends State<LoginSignupScreen> {
                                 TextFormField(
                                   key: ValueKey(4),
                                   validator: (value) {
-                                    if (value!.isEmpty || value.contains('@')) {
+                                    if (value!.isEmpty ||
+                                        !value.contains('@')) {
                                       return 'Please enter a valid email address';
                                     }
                                     return null;
                                   },
                                   onSaved: (value) {
                                     userEmail = value!;
+                                  },
+                                  onChanged: (value) {
+                                    userEmail = value;
                                   },
                                   decoration: InputDecoration(
                                     prefixIcon: Icon(
@@ -367,6 +371,7 @@ class _LoginSignupScreenState extends State<LoginSignupScreen> {
                                   height: 8,
                                 ),
                                 TextFormField(
+                                  obscureText: true,
                                   key: ValueKey(5),
                                   validator: (value) {
                                     if (value!.isEmpty || value.length < 6) {
@@ -376,6 +381,9 @@ class _LoginSignupScreenState extends State<LoginSignupScreen> {
                                   },
                                   onSaved: (value) {
                                     userPassword = value!;
+                                  },
+                                  onChanged: (value) {
+                                    userPassword = value;
                                   },
                                   decoration: InputDecoration(
                                     prefixIcon: Icon(
@@ -443,9 +451,11 @@ class _LoginSignupScreenState extends State<LoginSignupScreen> {
                           if (newUser.user != null) {
                             Navigator.push(
                               context,
-                              MaterialPageRoute(builder: (context) {
-                                return ChatScreen();
-                              }),
+                              MaterialPageRoute(
+                                builder: (context) {
+                                  return ChatScreen();
+                                },
+                              ),
                             );
                           }
                         } catch (e) {
@@ -454,8 +464,32 @@ class _LoginSignupScreenState extends State<LoginSignupScreen> {
                             SnackBar(
                               content:
                                   Text('Please check your email and password'),
+                              backgroundColor: Colors.blue,
                             ),
                           );
+                        }
+                      }
+                      if (!isSignupScreen) {
+                        _tryValidation();
+
+                        try {
+                          final newUser =
+                              await _authentication.signInWithEmailAndPassword(
+                            email: userEmail,
+                            password: userPassword,
+                          );
+                          if (newUser.user != null) {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) {
+                                  return ChatScreen();
+                                },
+                              ),
+                            );
+                          }
+                        } catch (e) {
+                          print(e);
                         }
                       }
                     },
