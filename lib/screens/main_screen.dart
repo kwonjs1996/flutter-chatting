@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:chatting/add_image/add_image.dart';
 import 'package:chatting/config/palette.dart';
 import 'package:chatting/screens/chat_screen.dart';
@@ -21,6 +23,11 @@ class _LoginSignupScreenState extends State<LoginSignupScreen> {
   String userName = '';
   String userEmail = '';
   String userPassword = '';
+  File? userPickedImage;
+
+  void pickedImage(File image) {
+    userPickedImage = image;
+  }
 
   void _tryValidation() {
     final isValid = _formKey.currentState!.validate();
@@ -33,7 +40,8 @@ class _LoginSignupScreenState extends State<LoginSignupScreen> {
     showDialog(
       context: context,
       builder: (context) {
-        return Dialog(backgroundColor: Colors.white, child: AddImage());
+        return Dialog(
+            backgroundColor: Colors.white, child: AddImage(pickedImage));
       },
     );
   }
@@ -188,17 +196,18 @@ class _LoginSignupScreenState extends State<LoginSignupScreen> {
                                       SizedBox(
                                         width: 15,
                                       ),
-                                      GestureDetector(
-                                        onTap: () {
-                                          showAlert(context);
-                                        },
-                                        child: Icon(
-                                          Icons.image,
-                                          color: isSignupScreen
-                                              ? Colors.cyan
-                                              : Colors.grey,
-                                        ),
-                                      )
+                                      if (isSignupScreen)
+                                        GestureDetector(
+                                          onTap: () {
+                                            showAlert(context);
+                                          },
+                                          child: Icon(
+                                            Icons.image,
+                                            color: isSignupScreen
+                                                ? Colors.cyan
+                                                : Colors.grey,
+                                          ),
+                                        )
                                     ],
                                   ),
                                   if (isSignupScreen)
@@ -476,6 +485,19 @@ class _LoginSignupScreenState extends State<LoginSignupScreen> {
                           showSpinner = true;
                         });
                         if (isSignupScreen) {
+                          if (userPickedImage == null) {
+                            setState(() {
+                              showSpinner = false;
+                            });
+
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text('Please pick your image'),
+                                backgroundColor: Colors.blue,
+                              ),
+                            );
+                            return;
+                          }
                           _tryValidation();
 
                           try {
